@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowDown, ArrowUp, FileImage, LinkIcon, Plus, Trash, Type, Video } from "lucide-react"
+import { Timeline } from "./timeline"
+import { PlusCircle, Clock } from "lucide-react"
 
-type BlockType = "text" | "image" | "video" | "link"
+type BlockType = "text" | "image" | "video" | "link" | "timeline"
 
 interface ContentBlock {
   id: string
@@ -18,6 +20,7 @@ interface ContentBlock {
     title?: string
     url?: string
     alt?: string
+    timelineItems?: any[]
   }
 }
 
@@ -105,6 +108,15 @@ export default function ContentBlockEditor() {
                 <LinkIcon className="h-4 w-4" />
                 Add Link
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => addBlock("timeline")}
+                className="flex items-center gap-2"
+              >
+                <Clock className="h-4 w-4" />
+                Add Timeline
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -148,6 +160,7 @@ export default function ContentBlockEditor() {
                   {block.type === "image" && <FileImage className="h-5 w-5" />}
                   {block.type === "video" && <Video className="h-5 w-5" />}
                   {block.type === "link" && <LinkIcon className="h-5 w-5" />}
+                  {block.type === "timeline" && <Clock className="h-5 w-5" />}
                   <CardTitle className="capitalize">{block.type} Block</CardTitle>
                 </div>
               </CardHeader>
@@ -246,6 +259,133 @@ export default function ContentBlockEditor() {
                           onChange={(e) => updateBlockContent(block.id, { url: e.target.value })}
                           placeholder="Enter URL"
                         />
+                      </div>
+                    </>
+                  )}
+
+                  {block.type === "timeline" && (
+                    <>
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <Label>Timeline Items</Label>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const timelineItems = block.content.timelineItems || []
+                              const newItem = {
+                                id: Date.now().toString(),
+                                date: "",
+                                title: "",
+                                description: "",
+                              }
+                              updateBlockContent(block.id, {
+                                timelineItems: [...timelineItems, newItem],
+                              })
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <PlusCircle className="h-4 w-4" />
+                            Add Item
+                          </Button>
+                        </div>
+
+                        {(block.content.timelineItems || []).length === 0 ? (
+                          <div className="flex h-24 flex-col items-center justify-center rounded-lg border border-dashed">
+                            <p className="text-sm text-muted-foreground">No timeline items yet. Add your first item.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {(block.content.timelineItems || []).map((item: any, itemIndex: number) => (
+                              <Card key={item.id} className="relative">
+                                <CardContent className="p-4">
+                                  <div className="absolute right-2 top-2">
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      onClick={() => {
+                                        const timelineItems = [...(block.content.timelineItems || [])]
+                                        timelineItems.splice(itemIndex, 1)
+                                        updateBlockContent(block.id, { timelineItems })
+                                      }}
+                                    >
+                                      <Trash className="h-4 w-4" />
+                                      <span className="sr-only">Delete</span>
+                                    </Button>
+                                  </div>
+                                  <div className="space-y-3 pt-2">
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <div className="space-y-1">
+                                        <Label htmlFor={`${item.id}-date`}>Date</Label>
+                                        <Input
+                                          id={`${item.id}-date`}
+                                          value={item.date || ""}
+                                          onChange={(e) => {
+                                            const timelineItems = [...(block.content.timelineItems || [])]
+                                            timelineItems[itemIndex] = {
+                                              ...timelineItems[itemIndex],
+                                              date: e.target.value,
+                                            }
+                                            updateBlockContent(block.id, { timelineItems })
+                                          }}
+                                          placeholder="e.g., Jan 2023"
+                                        />
+                                      </div>
+                                      <div className="space-y-1">
+                                        <Label htmlFor={`${item.id}-title`}>Title</Label>
+                                        <Input
+                                          id={`${item.id}-title`}
+                                          value={item.title || ""}
+                                          onChange={(e) => {
+                                            const timelineItems = [...(block.content.timelineItems || [])]
+                                            timelineItems[itemIndex] = {
+                                              ...timelineItems[itemIndex],
+                                              title: e.target.value,
+                                            }
+                                            updateBlockContent(block.id, { timelineItems })
+                                          }}
+                                          placeholder="Event title"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                      <Label htmlFor={`${item.id}-description`}>Description</Label>
+                                      <Textarea
+                                        id={`${item.id}-description`}
+                                        value={item.description || ""}
+                                        onChange={(e) => {
+                                          const timelineItems = [...(block.content.timelineItems || [])]
+                                          timelineItems[itemIndex] = {
+                                            ...timelineItems[itemIndex],
+                                            description: e.target.value,
+                                          }
+                                          updateBlockContent(block.id, { timelineItems })
+                                        }}
+                                        placeholder="Describe this milestone"
+                                        rows={3}
+                                      />
+                                    </div>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        )}
+
+                        {(block.content.timelineItems || []).length > 0 && (
+                          <div className="mt-4 rounded-lg border bg-muted/40 p-4">
+                            <p className="mb-2 text-xs text-muted-foreground">Preview:</p>
+                            <Timeline
+                              title={block.content.title || "My Journey"}
+                              items={(block.content.timelineItems || []).map((item: any) => ({
+                                id: item.id,
+                                date: item.date || "",
+                                title: item.title || "",
+                                description: item.description || "",
+                              }))}
+                            />
+                          </div>
+                        )}
                       </div>
                     </>
                   )}

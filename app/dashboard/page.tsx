@@ -7,9 +7,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import DashboardHeader from "@/components/dashboard-header"
 import { Eye, FileEdit, Rocket } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 export default function DashboardPage() {
   const [deployStatus, setDeployStatus] = useState<"idle" | "deploying" | "deployed">("idle")
+  const [contentChanged, setContentChanged] = useState(false)
+  const [autoDeploy, setAutoDeploy] = useState(true)
 
   const handleDeploy = () => {
     setDeployStatus("deploying")
@@ -18,6 +22,16 @@ export default function DashboardPage() {
     setTimeout(() => {
       setDeployStatus("deployed")
     }, 3000)
+  }
+
+  const checkContentChanges = (newContent: any) => {
+    // 在实际应用中，这里会比较新旧内容
+    setContentChanged(true)
+
+    // 如果设置了自动部署，则触发部署
+    if (autoDeploy) {
+      handleDeploy()
+    }
   }
 
   return (
@@ -74,6 +88,36 @@ export default function DashboardPage() {
                     </div>
                     {deployStatus === "deployed" && (
                       <p className="mt-2 text-sm text-muted-foreground">Last deployed: Just now</p>
+                    )}
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle>Deployment Settings</CardTitle>
+                    <CardDescription>Configure how your website is deployed</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="auto-deploy">Auto Deploy</Label>
+                        <p className="text-sm text-muted-foreground">Automatically deploy when content changes</p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch id="auto-deploy" checked={autoDeploy} onCheckedChange={setAutoDeploy} />
+                      </div>
+                    </div>
+                    {contentChanged && !autoDeploy && (
+                      <div className="mt-4">
+                        <p className="text-sm text-amber-500">
+                          Content changes detected. Deploy to update your website.
+                        </p>
+                        <Button onClick={handleDeploy} disabled={deployStatus === "deploying"} className="mt-2 gap-2">
+                          <Rocket className="h-4 w-4" />
+                          {deployStatus === "idle" && "Deploy Changes"}
+                          {deployStatus === "deploying" && "Deploying..."}
+                          {deployStatus === "deployed" && "Deployed!"}
+                        </Button>
+                      </div>
                     )}
                   </CardContent>
                 </Card>

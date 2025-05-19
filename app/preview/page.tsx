@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Image from "next/image"
 import { Github, Linkedin, Mail, MapPin, Twitter } from "lucide-react"
+import { Timeline } from "@/components/timeline"
 
 export default function PreviewPage() {
   return (
@@ -257,6 +258,45 @@ export default function PreviewPage() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          </div>
+        </section>
+
+        <section id="timeline" className="py-12 md:py-24">
+          <div className="container px-4 md:px-6">
+            <div className="mx-auto max-w-3xl space-y-4 text-center">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">My Journey</h2>
+              <p className="text-muted-foreground md:text-xl">Key milestones in my professional development.</p>
+            </div>
+            <div className="mx-auto mt-12 max-w-4xl">
+              <Timeline
+                items={[
+                  {
+                    id: "1",
+                    date: "2018",
+                    title: "Started Learning Web Development",
+                    description: "Began my journey into web development with HTML, CSS, and JavaScript.",
+                  },
+                  {
+                    id: "2",
+                    date: "2019",
+                    title: "First Developer Role",
+                    description: "Joined a startup as a junior developer working on frontend applications.",
+                  },
+                  {
+                    id: "3",
+                    date: "2021",
+                    title: "Senior Developer Position",
+                    description: "Promoted to senior developer, leading a team of frontend engineers.",
+                  },
+                  {
+                    id: "4",
+                    date: "2023",
+                    title: "Launched Personal Projects",
+                    description: "Created and launched several successful side projects and open-source contributions.",
+                  },
+                ]}
+              />
             </div>
           </div>
         </section>

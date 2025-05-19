@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -33,13 +33,36 @@ export default function EditorPage() {
     setProfile((prev) => ({ ...prev, [name]: value }))
   }
 
+  const checkContentChanges = useCallback(() => {
+    // 在实际应用中，这里会比较新旧内容
+    // 通知仪表板内容已更改
+    localStorage.setItem("contentChanged", "true")
+
+    // 如果设置了自动部署，则触发部署
+    const autoDeploy = localStorage.getItem("autoDeploy") !== "false"
+    if (autoDeploy) {
+      // 模拟自动部署
+      setIsSaving(true)
+      setTimeout(() => {
+        setIsSaving(false)
+        // 显示部署成功消息
+        alert("Content saved and deployed successfully!")
+      }, 1500)
+    } else {
+      // 仅保存
+      setIsSaving(true)
+      setTimeout(() => {
+        setIsSaving(false)
+        alert("Content saved successfully! Go to dashboard to deploy changes.")
+      }, 1500)
+    }
+  }, [])
+
   const handleSave = () => {
     setIsSaving(true)
 
-    // Simulate saving
-    setTimeout(() => {
-      setIsSaving(false)
-    }, 1500)
+    // 检测内容变更并处理部署
+    checkContentChanges()
   }
 
   return (
